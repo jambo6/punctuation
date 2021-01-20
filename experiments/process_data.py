@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
+import torch
+import signatory
 
 
 def convert_to_array(item_list):
@@ -112,7 +114,7 @@ def create_stacked_books(books):
     return stacked_books
 
 
-if __name__ == '__main__':
+def extract_and_save_individual_books():
     # Load
     filename = '../data/raw/Periodic/Punctuation/punctuation.pkl'
     frame_full = load_pickle(filename)
@@ -126,7 +128,7 @@ if __name__ == '__main__':
     # Convert labels to ints
     le = LabelEncoder()
     labels = frame_full['author']
-    labels_int = le.fit_transform(labels)
+    # labels_int = le.fit_transform(labels)
     author_to_label = {le.classes_[i]: i for i in range(len(le.classes_))}
     save_pickle(author_to_label, other_dir + '/author_to_label.pkl')
 
@@ -140,7 +142,7 @@ if __name__ == '__main__':
 
     # Book to author dict
     book_to_author = {b: a for b, a in zip(book_ids, authors)}
-    save_pickle(author_to_books, other_dir + '/book_to_author.pkl')
+    save_pickle(book_to_author, other_dir + '/book_to_author.pkl')
 
     # Book to author label
     book_to_author_label = {b: author_to_label[a] for b, a in zip(book_ids, authors)}
@@ -189,3 +191,7 @@ if __name__ == '__main__':
                 f5=f5[ix],
                 f6=f6[ix],
             )
+
+
+if __name__ == '__main__':
+    extract_and_save_individual_books()

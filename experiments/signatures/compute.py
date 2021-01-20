@@ -8,6 +8,7 @@ from joblib import Parallel, delayed
 import numpy as np
 import signatory
 import torch
+from augment import LeadLag
 
 
 def basic_parallel_loop(func, *args, n_jobs):
@@ -88,29 +89,3 @@ def compute_group_list_signatures(books, transform='signature', depth=3, n_jobs=
     group_idxs = [0] + list(np.cumsum([len(b) for b in books]))
     group_signatures = [signatures[group_idxs[i]:group_idxs[i+1]] for i in range(len(books))]
     return group_signatures
-
-
-class LeadLag:
-    """ Applies the leadlag transformation to each path.
-
-    Example:
-        This is a string man
-            [1, 2, 3] -> [[1, 1], [2, 1], [2, 2], [3, 2], [3, 3]]
-    """
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        # Interleave
-        X_repeat = X.repeat_interleave(2, dim=1)
-
-        # Split out lead and lag
-        lead = X_repeat[:, 1:, :]
-        lag = X_repeat[:, :-1, :]
-
-        # Combine
-        X_leadlag = torch.cat((lead, lag), 2)
-
-        return X_leadlag
-
-
