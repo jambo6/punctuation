@@ -1,0 +1,14 @@
+
+
+Easiest to classify books
+
+Try rocket over the features, the problem is, no feature importance.
+    That is, take signatures, fill to end, rocket over the top.
+
+Try getting rid of the time
+
+Reduce the .!?... dimension.
+
+Esig potentially better for this?
+
+# Try sum instead of mean, then gives an indication of number of sentences........
