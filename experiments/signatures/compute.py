@@ -8,17 +8,17 @@ from joblib import Parallel, delayed
 import numpy as np
 import signatory
 import torch
-from augment import LeadLag
+from .augment import LeadLag
 
 
-def basic_parallel_loop(func, *args, n_jobs):
+def basic_parallel_loop(func, *args, n_jobs=1):
     """Basic parallel computation loop.
 
     Args:
         func (function): The function to be applied.
         *args (list): List of arguments [(arg_1_1, ..., arg_n_1), (arg_1, 2), ..., (arg_k_n)]. Each tuple of args is
                       fed into func
-        n_jobs (bool): Set False to run a normal for loop (useful when debugging).
+        n_jobs (int): Set 1 to run a normal for loop (useful when debugging).
 
     Returns:
         list: Results from the function call.
@@ -58,7 +58,7 @@ def compute_variable_length_signatures(data_list, transform='signature', depth=3
     signature_groups = basic_parallel_loop(_transform, data_groups, n_jobs=n_jobs)
 
     # Now stick them back in the right order
-    signatures = torch.zeros(len(data_list), signature_groups[0].shape[-1])
+    signatures = torch.zeros(len(data_list), signature_groups[0].shape[-1], dtype=float)
     for i, idxs in enumerate(index_groups):
         signatures[idxs] = signature_groups[i]
 
@@ -84,7 +84,7 @@ def compute_group_list_signatures(books, transform='signature', depth=3, n_jobs=
     Returns:
         list of Tensors: Each tensor contains the stacked signatures for a given 'book'.
     """
-    sentences = [torch.Tensor(s) for b in books for s in b]
+    sentences = [torch.Tensor(s.to(float)) for b in books for s in b]
     signatures = compute_variable_length_signatures(sentences, depth=depth, transform=transform, n_jobs=n_jobs)
     group_idxs = [0] + list(np.cumsum([len(b) for b in books]))
     group_signatures = [signatures[group_idxs[i]:group_idxs[i+1]] for i in range(len(books))]
